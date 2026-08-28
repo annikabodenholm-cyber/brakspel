@@ -3,49 +3,190 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bråkspel</title>
+<title>Bråk × heltal</title>
 <style>
 body{
-  font-family:Arial,sans-serif;
+  font-family:Arial, sans-serif;
   background:#eef2f7;
-  display:flex;
-  justify-content:center;
-  padding:30px;
+  margin:0;
+  padding:25px;
 }
 .box{
-  background:white;
   max-width:700px;
-  width:100%;
+  margin:auto;
+  background:white;
+  border-radius:18px;
   padding:30px;
-  border-radius:16px;
   box-shadow:0 8px 20px rgba(0,0,0,.1);
 }
-h1{color:#2563eb;text-align:center}
+h1{text-align:center;color:#2563eb;}
+#fraga{
+  font-size:36px;
+  text-align:center;
+  margin:30px 0;
+  font-weight:bold;
+}
 button{
   width:100%;
   padding:14px;
   margin:8px 0;
-  border:none;
+  font-size:20px;
   border-radius:10px;
-  font-size:18px;
+  border:2px solid #ddd;
+  background:white;
   cursor:pointer;
 }
-.green{background:#16a34a;color:white}
-.yellow{background:#facc15}
-.red{background:#dc2626;color:white}
+button:hover{border-color:#2563eb;}
+#feedback{
+  margin-top:15px;
+  font-weight:bold;
+  min-height:30px;
+}
+#next{
+  background:#2563eb;
+  color:white;
+  display:none;
+}
+#top{
+  display:flex;
+  justify-content:space-between;
+  font-weight:bold;
+}
 </style>
 </head>
 <body>
+
 <div class="box">
-  <h1>🧮 Bråk × heltal</h1>
-  <p>Välkommen till bråkspelet!</p>
 
-  <button class="green">Nivå 1 – 30 uppgifter</button>
-  <button class="yellow">Nivå 2 – 30 uppgifter</button>
-  <button class="red">Nivå 3 – 30 uppgifter</button>
+<h1>🟢 Nivå 1 – Bråk × heltal</h1>
 
-  <hr>
-  <p>Detta är startsidan. När den fungerar lägger vi in hela spelet med 90 uppgifter.</p>
+<div id="top">
+<div id="nr"></div>
+<div id="poang"></div>
 </div>
+
+<div id="fraga"></div>
+
+<div id="svar"></div>
+
+<div id="feedback"></div>
+
+<button id="next" onclick="nasta()">Nästa uppgift</button>
+
+</div>
+
+<script>
+
+let nr=1;
+let poang=0;
+let ratt="";
+
+function gcd(a,b){
+ while(b){
+   let t=a%b;
+   a=b;
+   b=t;
+ }
+ return Math.abs(a);
+}
+
+function forenkla(a,b){
+ let g=gcd(a,b);
+ a/=g;
+ b/=g;
+ if(b==1) return a+"";
+ return a+"/"+b;
+}
+
+function nyFraga(){
+
+ document.getElementById("nr").innerHTML="Uppgift "+nr+" / 30";
+ document.getElementById("poang").innerHTML="Poäng: "+poang;
+
+ let nam=Math.floor(Math.random()*7)+1;
+ let denom=Math.floor(Math.random()*7)+2;
+ while(nam>=denom){
+   nam=Math.floor(Math.random()*7)+1;
+ }
+ let heltal=Math.floor(Math.random()*8)+2;
+
+ ratt=forenkla(nam*heltal,denom);
+
+ document.getElementById("fraga").innerHTML=
+ heltal+" × "+nam+"/"+denom;
+
+ let alternativ=[ratt];
+
+ while(alternativ.length<4){
+   let fel=forenkla(
+      Math.max(1,nam*heltal+Math.floor(Math.random()*5)-2),
+      denom
+   );
+   if(!alternativ.includes(fel)){
+      alternativ.push(fel);
+   }
+ }
+
+ alternativ.sort(()=>Math.random()-0.5);
+
+ let html="";
+ alternativ.forEach(a=>{
+   html+=`<button onclick="kontroll('${a}')">${a}</button>`;
+ });
+
+ document.getElementById("svar").innerHTML=html;
+ document.getElementById("feedback").innerHTML="";
+ document.getElementById("next").style.display="none";
+
+}
+
+function kontroll(val){
+
+ let knappar=document.querySelectorAll("#svar button");
+ knappar.forEach(b=>b.disabled=true);
+
+ if(val==ratt){
+   poang++;
+   document.getElementById("feedback").innerHTML="✅ Rätt!";
+ }else{
+   document.getElementById("feedback").innerHTML=
+   "❌ Rätt svar är <b>"+ratt+"</b>";
+ }
+
+ document.getElementById("poang").innerHTML="Poäng: "+poang;
+ document.getElementById("next").style.display="block";
+}
+
+function nasta(){
+
+ nr++;
+
+ if(nr>30){
+
+   let betyg="F";
+
+   if(poang>=27) betyg="A";
+   else if(poang>=24) betyg="B";
+   else if(poang>=21) betyg="C";
+   else if(poang>=18) betyg="D";
+   else if(poang>=15) betyg="E";
+
+   document.querySelector(".box").innerHTML=
+   `<h1>🎉 Klart!</h1>
+   <h2>${poang} av 30 rätt</h2>
+   <h1 style="font-size:70px">${betyg}</h1>
+   <p>Uppdatera sidan för att spela igen.</p>`;
+
+   return;
+ }
+
+ nyFraga();
+
+}
+
+nyFraga();
+
+</script>
+
 </body>
 </html>
