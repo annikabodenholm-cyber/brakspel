@@ -1,1 +1,41 @@
-<!DOCTYPE html><html lang='sv'><head><meta charset='UTF-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Bråkmästaren</title><link rel='stylesheet' href='style.css'></head><body><div class='wrap'><div class='card'><div id='menu'><h1>🧮 Bråkmästaren</h1><button class='level green' onclick='start(1)'>Nivå 1</button><button class='level yellow' onclick='start(2)'>Nivå 2</button><button class='level red' onclick='start(3)'>Nivå 3</button></div><div id='game' class='hide'><div class='top'><button class='home' onclick='home()'>←</button><span id='prog'></span><span id='pts'></span></div><div class='bar'><div id='fill'></div></div><div id='ctx'></div><div id='q'></div><div id='ans'></div><div id='fb'></div><button id='next' class='next hide' onclick='nextQ()'>Nästa</button></div><div id='done' class='hide'><h2>Klart!</h2><div id='final'></div><button onclick='start(level)'>Spela igen</button><button onclick='home()'>Startsida</button></div></div></div><script src='script.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bråkmästaren</title>
+<style>
+body{margin:0;font-family:Arial;background:#eef4ff}
+.wrap{max-width:760px;margin:24px auto;padding:16px}
+.card{background:#fff;border-radius:18px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+h1{text-align:center;color:#2563eb}.level{width:100%;padding:18px;margin:12px 0;border:none;border-radius:14px;font-size:22px;font-weight:bold;cursor:pointer}
+.green{background:#16a34a;color:#fff}.yellow{background:#f59e0b}.red{background:#dc2626;color:#fff}
+.hide{display:none}.top{display:flex;justify-content:space-between;font-weight:bold}
+.bar{height:10px;background:#ddd;border-radius:99px;margin:10px 0}#fill{height:100%;width:0;background:#2563eb;border-radius:99px}
+#question{text-align:center;font-size:34px;font-weight:bold;margin:20px}.answer{width:100%;padding:12px;margin:8px 0;border:2px solid #ddd;border-radius:12px;background:#fff;font-size:20px;cursor:pointer}
+.frac{display:inline-block;text-align:center;vertical-align:middle}.frac .t{display:block;border-bottom:2px solid #111;padding:0 6px}.frac .b{display:block;padding:0 6px}
+#feedback{font-weight:bold;min-height:28px;padding:8px}.next{width:100%;padding:12px;border:none;border-radius:12px;background:#2563eb;color:#fff;font-size:18px;cursor:pointer}
+</style></head>
+<body><div class='wrap'><div class='card'>
+<div id='menu'><h1>🧮 Bråkmästaren</h1>
+<button class='level green' onclick='start(1)'>Nivå 1</button>
+<button class='level yellow' onclick='start(2)'>Nivå 2</button>
+<button class='level red' onclick='start(3)'>Nivå 3</button></div>
+<div id='game' class='hide'><div class='top'><div id='prog'></div><div id='pts'></div></div>
+<div class='bar'><div id='fill'></div></div><div id='question'></div><div id='answers'></div><div id='feedback'></div>
+<button id='next' class='next hide' onclick='nextQuestion()'>Nästa</button></div>
+<div id='result' class='hide'><h1>Klart!</h1><h2 id='final'></h2><button class='next' onclick='home()'>Startsida</button></div>
+</div></div>
+<script>
+const TOTAL=30;let level=1,index=0,score=0,questions=[];
+function gcd(a,b){while(b){[a,b]=[b,a%b]}return Math.abs(a)||1}
+function simp(n,d){let g=gcd(n,d);return[n/g,d/g]}
+function frac(n,d){return `<span class="frac"><span class="t">${n}</span><span class="b">${d}</span></span>`}
+function mixed(n,d){let h=Math.floor(n/d),r=n%d;if(r===0)return ''+h;if(h===0)return frac(r,d);return h+' '+frac(r,d)}
+function makeQ(){let den=[2,3,4,5,6,8,10,12];if(level===2)den=[3,4,5,6,8,9,10,12,15];if(level===3)den=[4,5,6,8,9,10,12,15];let d=den[Math.floor(Math.random()*den.length)],n=1+Math.floor(Math.random()*Math.min(8,d-1)),w=level+1+Math.floor(Math.random()*5);let s=simp(n*w,d),right=mixed(s[0],s[1]);let opts=[right];while(opts.length<4){let a=simp(Math.max(1,s[0]+Math.floor(Math.random()*5)-2),s[1]),alt=mixed(a[0],a[1]);if(!opts.includes(alt))opts.push(alt)}return{q:`${w} × ${n}/${d}`,right,opts:opts.sort(()=>Math.random()-.5)}}
+function start(l){level=l;score=0;index=0;questions=[];for(let i=0;i<TOTAL;i++)questions.push(makeQ());menu.classList.add('hide');game.classList.remove('hide');result.classList.add('hide');show()}
+function show(){let q=questions[index];prog.textContent=`${index+1}/${TOTAL}`;pts.textContent=`Rätt ${score}`;fill.style.width=(index/TOTAL*100)+'%';question.innerHTML=q.q.replace(/(\d+)\/(\d+)/,(_,a,b)=>frac(a,b));answers.innerHTML='';feedback.innerHTML='';next.classList.add('hide');q.opts.forEach(v=>{let b=document.createElement('button');b.className='answer';b.innerHTML=v;b.onclick=()=>check(v);answers.appendChild(b)})}
+function check(v){[...document.querySelectorAll('.answer')].forEach(b=>b.disabled=true);if(v===questions[index].right){score++;feedback.innerHTML='✅ Rätt!'}else{feedback.innerHTML='❌ Rätt svar: '+questions[index].right}pts.textContent=`Rätt ${score}`;next.classList.remove('hide')}
+function nextQuestion(){index++;if(index===TOTAL){game.classList.add('hide');result.classList.remove('hide');final.textContent=`${score} av ${TOTAL} rätt`;return}show()}
+function home(){menu.classList.remove('hide');game.classList.add('hide');result.classList.add('hide')}
+</script></body></html>
