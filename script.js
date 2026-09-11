@@ -1,1 +1,46 @@
-const T=30;let level=1,i=0,score=0,qs=[];const $=id=>document.getElementById(id);const ds=[[2,3,4,5,6,8,10,12],[3,4,5,6,8,9,10,12,15],[4,5,6,8,9,10,12,15]];function gcd(a,b){while(b){[a,b]=[b,a%b]}return Math.abs(a)||1}function simp(n,d){let g=gcd(n,d);return[n/g,d/g]}function frac(n,d){return `<span class='frac'><span class='t'>${n}</span><span class='b'>${d}</span></span>`}function mix(n,d){let h=Math.floor(n/d),r=n%d;if(r===0)return''+h;if(h===0)return frac(r,d);return h+' '+frac(r,d)}function mk(){let arr=ds[level-1],d=arr[Math.floor(Math.random()*arr.length)],n=1+Math.floor(Math.random()*Math.min(8,d-1)),w=level+1+Math.floor(Math.random()*5);let[sn,sd]=simp(n*w,d),r=mix(sn,sd),o=[r];while(o.length<4){let[a,b]=simp(Math.max(1,sn+Math.floor(Math.random()*5)-2),sd),m=mix(a,b);if(!o.includes(m))o.push(m)}o.sort(()=>Math.random()-.5);return{t:level===3&&Math.random()<.35?`Ett recept använder ${n}/${d} dl mjöl. Hur mycket behövs till ${w} recept?`:'',q:`${w} × ${n}/${d}`,r,o}}function start(l){level=l;i=0;score=0;qs=[];for(let k=0;k<T;k++)qs.push(mk());$('menu').classList.add('hide');$('done').classList.add('hide');$('game').classList.remove('hide');show()}function show(){let x=qs[i];$('prog').textContent=`${i+1}/${T}`;$('pts').textContent=`Rätt ${score}`;$('fill').style.width=(i/T*100)+'%';$('ctx').innerHTML=x.t?x.t.replace(/(\d+)\/(\d+)/g,(m,a,b)=>frac(a,b)):'<b>Förkorta eller skriv i blandad form om det går.</b>';$('q').innerHTML=x.q.replace(/(\d+)\/(\d+)/,(_,a,b)=>frac(a,b));$('ans').innerHTML='';$('fb').textContent='';$('next').classList.add('hide');x.o.forEach(v=>{let b=document.createElement('button');b.className='ans';b.innerHTML=v;b.onclick=()=>check(v);$('ans').appendChild(b)})}function check(v){[...$('ans').children].forEach(b=>b.disabled=true);if(v===qs[i].r){score++;$('fb').textContent='✅ Rätt!'}else{$('fb').innerHTML='❌ Rätt: '+qs[i].r}$('pts').textContent=`Rätt ${score}`;$('next').classList.remove('hide')}function nextQ(){i++;if(i===T){$('game').classList.add('hide');$('done').classList.remove('hide');$('res').textContent=`${score} av ${T} rätt`;return}show()}function home(){$('menu').classList.remove('hide');$('game').classList.add('hide');$('done').classList.add('hide')}
+let level=1,score=0,current={n:1,d:2,w:2};
+
+function gcd(a,b){while(b){[a,b]=[b,a%b]}return Math.abs(a);}
+function simplify(n,d){const g=gcd(n,d);return {n:n/g,d:d/g};}
+
+function makeQuestion(){
+  const den=2+Math.floor(Math.random()*(level*3+3));
+  const num=1+Math.floor(Math.random()*Math.min(den-1,8));
+  const whole=1+Math.floor(Math.random()*(level+2));
+  const ans=simplify(num*whole,den);
+  current={n:ans.n,d:ans.d,w:whole,qn:num,qd:den};
+  document.getElementById("question").textContent=
+    `${whole} × ${num}/${den} = ?`;
+  document.getElementById("answer").value="";
+  document.getElementById("feedback").textContent="";
+}
+
+function startLevel(l){
+  level=l; score=0;
+  document.getElementById("score").textContent=score;
+  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("levelTitle").textContent=`Nivå ${l}`;
+  makeQuestion();
+}
+
+function normalize(s){return s.replace(/\s+/g," ").trim();}
+
+function checkAnswer(){
+  const input=normalize(document.getElementById("answer").value);
+  let ok=false;
+  const imp=Math.floor(current.n/current.d), rem=current.n%current.d;
+  const frac=`${current.n}/${current.d}`;
+  const mix= rem===0 ? String(imp) : (imp>0 ? `${imp} ${rem}/${current.d}` : `${rem}/${current.d}`);
+  if(input===frac || input===mix) ok=true;
+  const fb=document.getElementById("feedback");
+  if(ok){
+    score++;
+    fb.textContent="Rätt!";
+    fb.style.color="green";
+    document.getElementById("score").textContent=score;
+  }else{
+    fb.textContent=`Fel. Rätt svar: ${mix}`;
+    fb.style.color="crimson";
+  }
+  setTimeout(makeQuestion,900);
+}

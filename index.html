@@ -1,1 +1,29 @@
-<!doctype html><html lang='sv'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Bråkmästaren</title><link rel='stylesheet' href='style.css'></head><body><div class='wrap'><div class='card'><div id='menu'><h1>🧮 Bråkmästaren</h1><button class='lvl g' onclick='start(1)'>Nivå 1</button><button class='lvl y' onclick='start(2)'>Nivå 2</button><button class='lvl r' onclick='start(3)'>Nivå 3</button></div><div id='game' class='hide'><div class='top'><button onclick='home()'>←</button><span id='prog'></span><span id='pts'></span></div><div class='bar'><div id='fill'></div></div><div id='ctx'></div><div id='q'></div><div id='ans'></div><div id='fb'></div><button id='next' class='hide' onclick='nextQ()'>Nästa</button></div><div id='done' class='hide'><h2>Klart!</h2><h1 id='res'></h1><button onclick='start(level)'>Spela igen</button><button onclick='home()'>Startsida</button></div></div></div><script src='script.js'></script></body></html>
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bråkmästaren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>🟢 Bråkmästaren</h1>
+    <p>Välj en nivå och träna bråkmultiplikation.</p>
+    <div class="buttons">
+      <button class="green" onclick="startLevel(1)">Nivå 1</button>
+      <button class="yellow" onclick="startLevel(2)">Nivå 2</button>
+      <button class="red" onclick="startLevel(3)">Nivå 3</button>
+    </div>
+    <div id="game" class="hidden">
+      <h2 id="levelTitle"></h2>
+      <p id="question"></p>
+      <input id="answer" placeholder="t.ex. 3/4 eller 2 1/3">
+      <button onclick="checkAnswer()">Svara</button>
+      <p id="feedback"></p>
+      <p>Poäng: <span id="score">0</span></p>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
