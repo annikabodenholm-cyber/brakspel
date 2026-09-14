@@ -1,46 +1,101 @@
-let level=1,score=0,current={n:1,d:2,w:2};
-
-function gcd(a,b){while(b){[a,b]=[b,a%b]}return Math.abs(a);}
-function simplify(n,d){const g=gcd(n,d);return {n:n/g,d:d/g};}
-
-function makeQuestion(){
-  const den=2+Math.floor(Math.random()*(level*3+3));
-  const num=1+Math.floor(Math.random()*Math.min(den-1,8));
-  const whole=1+Math.floor(Math.random()*(level+2));
-  const ans=simplify(num*whole,den);
-  current={n:ans.n,d:ans.d,w:whole,qn:num,qd:den};
-  document.getElementById("question").textContent=
-    `${whole} × ${num}/${den} = ?`;
-  document.getElementById("answer").value="";
-  document.getElementById("feedback").textContent="";
-}
-
-function startLevel(l){
-  level=l; score=0;
-  document.getElementById("score").textContent=score;
-  document.getElementById("game").classList.remove("hidden");
-  document.getElementById("levelTitle").textContent=`Nivå ${l}`;
-  makeQuestion();
-}
-
-function normalize(s){return s.replace(/\s+/g," ").trim();}
-
-function checkAnswer(){
-  const input=normalize(document.getElementById("answer").value);
-  let ok=false;
-  const imp=Math.floor(current.n/current.d), rem=current.n%current.d;
-  const frac=`${current.n}/${current.d}`;
-  const mix= rem===0 ? String(imp) : (imp>0 ? `${imp} ${rem}/${current.d}` : `${rem}/${current.d}`);
-  if(input===frac || input===mix) ok=true;
-  const fb=document.getElementById("feedback");
-  if(ok){
-    score++;
-    fb.textContent="Rätt!";
-    fb.style.color="green";
-    document.getElementById("score").textContent=score;
-  }else{
-    fb.textContent=`Fel. Rätt svar: ${mix}`;
-    fb.style.color="crimson";
-  }
-  setTimeout(makeQuestion,900);
-}
+const level1=[
+{type:"calc",w:2,n:1,d:2},
+{type:"calc",w:2,n:1,d:3},
+{type:"calc",w:3,n:2,d:3},
+{type:"calc",w:2,n:1,d:4},
+{type:"calc",w:3,n:2,d:4},
+{type:"calc",w:2,n:3,d:4},
+{type:"calc",w:2,n:1,d:5},
+{type:"calc",w:3,n:2,d:5},
+{type:"calc",w:2,n:3,d:5},
+{type:"calc",w:3,n:4,d:5},
+{type:"calc",w:2,n:1,d:6},
+{type:"calc",w:3,n:2,d:6},
+{type:"calc",w:2,n:3,d:6},
+{type:"calc",w:3,n:4,d:6},
+{type:"calc",w:2,n:5,d:6},
+{type:"calc",w:2,n:1,d:7},
+{type:"calc",w:3,n:2,d:7},
+{type:"calc",w:2,n:3,d:7},
+{type:"calc",w:3,n:4,d:7},
+{type:"calc",w:2,n:5,d:7},
+{type:"calc",w:3,n:6,d:7},
+{type:"calc",w:2,n:1,d:8},
+{type:"calc",w:3,n:2,d:8},
+{type:"calc",w:2,n:3,d:8},
+{type:"calc",w:3,n:4,d:8},
+{type:"calc",w:2,n:5,d:8},
+{type:"calc",w:3,n:6,d:8},
+{type:"calc",w:2,n:7,d:8},
+{type:"calc",w:2,n:1,d:9},
+{type:"calc",w:3,n:2,d:9},
+];\nconst level2=[
+{type:"calc",w:4,n:3,d:8},
+{type:"calc",w:3,n:5,d:6},
+{type:"calc",w:2,n:7,d:9},
+{type:"calc",w:5,n:4,d:7},
+{type:"calc",w:3,n:8,d:11},
+{type:"calc",w:4,n:5,d:12},
+{type:"calc",w:5,n:7,d:10},
+{type:"calc",w:2,n:9,d:11},
+{type:"calc",w:3,n:11,d:12},
+{type:"calc",w:6,n:5,d:9},
+{type:"calc",w:4,n:3,d:8},
+{type:"calc",w:3,n:5,d:6},
+{type:"calc",w:2,n:7,d:9},
+{type:"calc",w:5,n:4,d:7},
+{type:"calc",w:3,n:8,d:11},
+{type:"calc",w:4,n:5,d:12},
+{type:"calc",w:5,n:7,d:10},
+{type:"calc",w:2,n:9,d:11},
+{type:"calc",w:3,n:11,d:12},
+{type:"calc",w:6,n:5,d:9},
+{type:"calc",w:4,n:3,d:8},
+{type:"calc",w:3,n:5,d:6},
+{type:"calc",w:2,n:7,d:9},
+{type:"calc",w:5,n:4,d:7},
+{type:"calc",w:3,n:8,d:11},
+{type:"calc",w:4,n:5,d:12},
+{type:"calc",w:5,n:7,d:10},
+{type:"calc",w:2,n:9,d:11},
+{type:"calc",w:3,n:11,d:12},
+{type:"calc",w:6,n:5,d:9},
+];\nconst level3=[
+{type:"text",text:"En pizza delas i 8 bitar. Elsa äter 3/8 två gånger.",w:2,n:3,d:8},
+{type:"text",text:"Leo springer 3 varv på 5/6 km.",w:3,n:5,d:6},
+{type:"text",text:"4 satser använder 7/10 liter vardera.",w:4,n:7,d:10},
+{type:"text",text:"Maja läser 2/3 bok i 3 dagar.",w:3,n:2,d:3},
+{type:"text",text:"3 gånger 5/12 choklad.",w:3,n:5,d:12},
+{type:"text",text:"5 flaskor à 3/4 liter.",w:5,n:3,d:4},
+{type:"text",text:"4 band på 7/8 m.",w:4,n:7,d:8},
+{type:"text",text:"6 grupper bakar 5/9 plåt.",w:6,n:5,d:9},
+{type:"text",text:"3 promenader på 11/12 km.",w:3,n:11,d:12},
+{type:"text",text:"7 rader med 4/5 liter.",w:7,n:4,d:5},
+{type:"text",text:"En pizza delas i 8 bitar. Elsa äter 3/8 två gånger.",w:2,n:3,d:8},
+{type:"text",text:"Leo springer 3 varv på 5/6 km.",w:3,n:5,d:6},
+{type:"text",text:"4 satser använder 7/10 liter vardera.",w:4,n:7,d:10},
+{type:"text",text:"Maja läser 2/3 bok i 3 dagar.",w:3,n:2,d:3},
+{type:"text",text:"3 gånger 5/12 choklad.",w:3,n:5,d:12},
+{type:"text",text:"5 flaskor à 3/4 liter.",w:5,n:3,d:4},
+{type:"text",text:"4 band på 7/8 m.",w:4,n:7,d:8},
+{type:"text",text:"6 grupper bakar 5/9 plåt.",w:6,n:5,d:9},
+{type:"text",text:"3 promenader på 11/12 km.",w:3,n:11,d:12},
+{type:"text",text:"7 rader med 4/5 liter.",w:7,n:4,d:5},
+{type:"text",text:"En pizza delas i 8 bitar. Elsa äter 3/8 två gånger.",w:2,n:3,d:8},
+{type:"text",text:"Leo springer 3 varv på 5/6 km.",w:3,n:5,d:6},
+{type:"text",text:"4 satser använder 7/10 liter vardera.",w:4,n:7,d:10},
+{type:"text",text:"Maja läser 2/3 bok i 3 dagar.",w:3,n:2,d:3},
+{type:"text",text:"3 gånger 5/12 choklad.",w:3,n:5,d:12},
+{type:"text",text:"5 flaskor à 3/4 liter.",w:5,n:3,d:4},
+{type:"text",text:"4 band på 7/8 m.",w:4,n:7,d:8},
+{type:"text",text:"6 grupper bakar 5/9 plåt.",w:6,n:5,d:9},
+{type:"text",text:"3 promenader på 11/12 km.",w:3,n:11,d:12},
+{type:"text",text:"7 rader med 4/5 liter.",w:7,n:4,d:5},
+];\n
+let level=1,list=[],i=0,score=0,c;
+function g(a,b){while(b){[a,b]=[b,a%b]}return Math.abs(b||a)}
+function s(n,d){let x=g(n,d);return[n/x,d/x]}
+function m(n,d){let h=Math.floor(n/d),r=n%d;if(!r)return''+h;return h?`${h} ${r}/${d}`:`${r}/${d}`}
+function startLevel(l){level=l;list=l==1?[...level1]:l==2?[...level2]:[...level3];i=0;score=0;document.getElementById('game').classList.remove('hide');document.getElementById('title').textContent='Nivå '+l;show()}
+function show(){c=list[i];document.getElementById('score').textContent=score;document.getElementById('counter').textContent=`Uppgift ${i+1} av 30`;document.getElementById('feedback').textContent='';document.getElementById('answer').value='';document.getElementById('question').innerHTML=c.type==='calc'?`${c.w} × ${c.n}/${c.d} = ?`:c.text+'<br><b>Hur mycket blir det?</b>'}
+function check(){let[rn,rd]=s(c.w*c.n,c.d);let a=document.getElementById('answer').value.trim().replace(/\s+/g,' '),f=document.getElementById('feedback');if(a===`${rn}/${rd}`||a===m(rn,rd)){score++;f.style.color='green';f.textContent='Rätt!'}else{f.style.color='crimson';f.textContent='Fel. Rätt svar: '+m(rn,rd)}i++;if(i>=30){setTimeout(()=>{document.getElementById('question').textContent=`Färdig! ${score}/30 rätt.`;document.getElementById('counter').textContent='';f.textContent='';},600)}else setTimeout(show,600)}
